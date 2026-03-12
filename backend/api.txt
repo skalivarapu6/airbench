@@ -1,0 +1,20 @@
+EXPERIMENTS (top-level resource):
+GET    /experiments -> list all experiments ++
+POST   /experiments -> create a new experiment ++
+GET    /experiments/{id} -> get experiment overview ++
+PUT    /experiments/{id} -> update experiment ++
+DELETE /experiments/{id} -> delete exsisting experiment
+
+EXPERIMENT SUB-RESOURCES:
+GET    /experiments/{id}/hyperparameters -> return hyperparameters of exp
+GET    /experiments/{id}/metrics -> get metrics of exp ++
+GET    /experiments/{id}/logs -> get logs of experiment ++
+
+DATASETS (top-level resource):
+GET    /datasets -> list available datasets ++
+POST   /datasets -> create a new dataset ++ 
+GET    /datasets/{id} -> get dataset details
+DELETE /datasets/{id} -> delete dataset
+
+3. Hyperparameters should be created with the experiment to maintian consistency
+4. Should the metrics be logged once the training is fullly done? The metrics should be updated by reading the logs of the run correct?

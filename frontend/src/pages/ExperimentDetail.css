@@ -1,0 +1,136 @@
+.breadcrumb {
+  color: #89b4fa;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.breadcrumb:hover {
+  text-decoration: underline;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-section {
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.detail-section h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: #cdd6f4;
+  border-bottom: 2px solid #313244;
+  padding-bottom: 0.75rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.info-item .label {
+  font-size: 0.75rem;
+  color: #6c7086;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.info-item .value {
+  color: #cdd6f4;
+  font-size: 0.95rem;
+}
+
+.hyperparameters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hyperparameter-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: #181825;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.param-name {
+  color: #89b4fa;
+  font-weight: 600;
+}
+
+.param-value {
+  color: #cdd6f4;
+  font-family: 'Courier New', monospace;
+}
+
+.no-data {
+  color: #6c7086;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}
+
+.metrics-summary {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #181825;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #6c7086;
+}
+
+.metrics-summary p {
+  margin: 0.25rem 0;
+}
+
+.logs-container {
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.logs-content {
+  padding: 1rem;
+  margin: 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  color: #a6e3a1;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

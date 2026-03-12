@@ -1,0 +1,98 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 260px;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #313244;
+}
+
+.logo {
+  padding: 2rem 1.5rem 1rem;
+  border-bottom: 1px solid #313244;
+}
+
+.logo h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #89b4fa;
+  font-weight: 700;
+}
+
+.logo p {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: #6c7086;
+}
+
+.nav-menu {
+  list-style: none;
+  padding: 1rem 0;
+  margin: 0;
+  flex: 1;
+}
+
+.nav-menu li {
+  margin: 0.25rem 0;
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #cdd6f4;
+  text-decoration: none;
+  transition: all 0.2s;
+  gap: 0.75rem;
+}
+
+.nav-menu a:hover {
+  background: #313244;
+  color: #89b4fa;
+}
+
+.nav-menu li.active a {
+  background: #313244;
+  color: #89b4fa;
+  border-right: 3px solid #89b4fa;
+}
+
+.icon {
+  font-size: 1.25rem;
+}
+
+.sidebar-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #313244;
+}
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: #89b4fa;
+  color: #1e1e2e;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #74c7ec;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #181825;
+  color: #cdd6f4;
+}

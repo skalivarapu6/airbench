@@ -1,0 +1,73 @@
+Experiments table:
+CREATE TABLE experiments (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    base_model VARCHAR(100) NOT NULL,
+    dataset_name VARCHAR(255) NOT NULL,
+    status VARCHAR(50) DEFAULT 'queued',
+
+    -- Dataset reference
+    dataset_id INTEGER REFERENCES datasets(id)
+    
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT NOW(),
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    
+    -- Compute provider (flexible!) ✨
+    compute_provider VARCHAR(50),     -- "sol", "runpod", "lambda", "local", "colab"
+    remote_job_id VARCHAR(100),       -- Provider's job ID
+    compute_config JSONB,             -- Provider-specific data
+    
+    -- Results
+    final_train_loss FLOAT,
+    final_val_loss FLOAT,
+    test_accuracy FLOAT,
+    
+    -- Files
+    log_file_path TEXT,
+    checkpoint_path TEXT,
+    
+    -- Optional
+    notes TEXT,
+    error_message TEXT
+);
+
+Dataset table:
+CREATE TABLE datasets (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE,
+    description TEXT,
+    file_path TEXT,
+    num_samples INTEGER,
+    created_at TIMESTAMP,
+    checksum VARCHAR(64)
+
+)
+
+Hyperparameters table:
+CREATE TABLE hyperparameters (
+    id SERIAL PRIMARY KEY,
+    experiment_id INTEGER REFERENCES experiments(id) ON DELETE CASCADE,
+    param_name VARCHAR(100) NOT NULL,
+    param_value TEXT NOT NULL,         -- Store as text (can be "0.001" or "true")
+    param_type VARCHAR(20)             -- "float", "int", "string", "bool"
+    param_category VARCHAR(50), -- "optimizer", "model", "training"
+    is_default BOOLEAN,         -- True if using default value
+);
+
+// Store results and tests here, add any new test with name and value
+// TODO: Make it more test agnostic
+Metrics table:
+CREATE TABLE metrics (
+    id SERIAL PRIMARY KEY,             -- ✅ Its own ID
+    experiment_id INTEGER REFERENCES experiments(id) ON DELETE CASCADE,
+    step INTEGER NOT NULL,
+    phase (phase_enum['eval','train','final'])
+    metric_name VARCHAR(100) NOT NULL,
+    metric_value FLOAT NOT NULL,
+    timestamp TIMESTAMP DEFAULT NOW()
+);
+
+Store logs as files, databse store stores the path of the files
+

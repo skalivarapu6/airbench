@@ -1,0 +1,26 @@
+from __future__ import annotations
+
+import os
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from models import Base
+
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql+psycopg://airbench:changeme@localhost:5432/airbench",
+)
+
+engine = create_engine(DATABASE_URL, echo=True)
+
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+def init_db() -> None:
+    Base.metadata.create_all(bind=engine)
+
+def get_session() -> Session: # type: ignore
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
