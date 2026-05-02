@@ -11,7 +11,7 @@ DATABASE_URL = os.environ.get(
     "postgresql+psycopg://airbench:changeme@localhost:5432/airbench",
 )
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 

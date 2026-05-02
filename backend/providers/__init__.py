@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-def get_provider(provider_name: str, config: dict = None) -> BaseComputeProvider:
+def get_provider(provider_name: str, config: dict | None = None) -> BaseComputeProvider:
     """
     Factory function to get a provider instance.
 

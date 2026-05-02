@@ -2,6 +2,7 @@
 Local compute provider - runs training jobs on the same machine or SSH-accessible servers.
 """
 import asyncio
+import json
 import os
 import subprocess
 from typing import Dict, Any, Optional
@@ -188,12 +189,11 @@ class LocalProvider(BaseComputeProvider):
         for line in logs.split("\n"):
             if line.strip().startswith("{") and "step" in line:
                 try:
-                    import json
                     metric = json.loads(line.strip())
                     step = metric.get("step")
                     if step:
                         metrics[f"step_{step}"] = metric
-                except:
+                except (json.JSONDecodeError, ValueError):
                     continue
 
         return metrics

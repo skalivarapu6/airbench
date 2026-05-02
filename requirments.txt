@@ -1,8 +1,0 @@
-fastapi[standard]
-sqlalchemy[asyncio]
-cython
-build
-sqlalchemy
-psycopg[binary]
-sqlmodel
-aiofiles

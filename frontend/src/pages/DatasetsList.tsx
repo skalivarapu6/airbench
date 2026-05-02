@@ -18,8 +18,8 @@ const DatasetsList = () => {
     try {
       const data = await getDatasets();
       setDatasets(data);
-    } catch (err) {
-      console.error('Failed to load datasets:', err);
+    } catch {
+      // Datasets will just be empty
     } finally {
       setLoading(false);
     }
@@ -42,8 +42,21 @@ const DatasetsList = () => {
       setFormData({ name: '', description: '', file_path: '' });
       setShowForm(false);
       await fetchDatasets();
-    } catch (err: any) {
-      setFormError(err.response?.data?.detail || err.message || 'Failed to create dataset');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setFormError(err.message);
+      } else if (
+        typeof err === 'object' &&
+        err !== null &&
+        'response' in err
+      ) {
+        const axiosErr = err as { response?: { data?: { detail?: string } } };
+        setFormError(
+          axiosErr.response?.data?.detail || 'Failed to create dataset'
+        );
+      } else {
+        setFormError('Failed to create dataset');
+      }
     }
   };
 
@@ -143,10 +156,12 @@ const DatasetsList = () => {
                   <span className="value">{new Date(dataset.created_at).toLocaleString()}</span>
                 </div>
 
-                <div className="info-row">
-                  <span className="label">Checksum:</span>
-                  <span className="value checksum">{dataset.checksum.substring(0, 16)}...</span>
-                </div>
+                {dataset.checksum && (
+                  <div className="info-row">
+                    <span className="label">Checksum:</span>
+                    <span className="value checksum">{dataset.checksum.substring(0, 16)}...</span>
+                  </div>
+                )}
               </div>
             </div>
           ))}

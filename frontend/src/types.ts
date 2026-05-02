@@ -29,19 +29,13 @@ export interface ExperimentDetail {
   completed_at: string | null;
   compute_provider: string | null;
   remote_job_id: string | null;
-  compute_config: string | null;
+  compute_config: Record<string, unknown> | null;
   dataset_id: number;
   dataset_name: string;
   file_path: string | null;
   num_samples: number | null;
-  hyperparameters: HyperparameterDetail[];
+  hyperparameters: Record<string, string>;
   metric_summary: MetricSummary;
-}
-
-export interface HyperparameterDetail {
-  param_name: string;
-  param_value: string;
-  param_category: string | null;
 }
 
 export interface MetricSummary {
@@ -54,16 +48,16 @@ export interface Dataset {
   id: number;
   name: string;
   file_path: string;
-  description: string;
-  num_samples: number;
+  description: string | null;
+  num_samples: number | null;
   created_at: string;
-  checksum: string;
+  checksum: string | null;
 }
 
 export interface Metric {
   id: number;
   experiment_id: number;
-  step: number;
+  step: number | null;
   metric_name: string;
   metric_value: number;
   timestamp: string;
@@ -88,7 +82,7 @@ export interface WebSocketMessage {
   status?: ExperimentStatus;
   job_id?: string;
   logs?: string;
-  metrics?: Record<string, any>;
+  metrics?: Record<string, unknown>;
   error?: string;
   timestamp: string;
 }

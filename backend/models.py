@@ -34,7 +34,7 @@ class Dataset(Base):
     description: Mapped[Optional[str]] = mapped_column(Text)
     file_path: Mapped[Optional[str]] = mapped_column(Text)
     num_samples: Mapped[Optional[int]] = mapped_column(Integer)
-    created_at: Mapped[DateTime] = mapped_column(DateTime,server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     checksum: Mapped[Optional[str]] = mapped_column(String(64))
     experiments: Mapped[List["Experiment"]] = relationship(back_populates="dataset")
 
@@ -54,7 +54,7 @@ class Experiment(Base):
     )
     dataset: Mapped["Dataset"] = relationship(back_populates="experiments")
 
-    created_at: Mapped[DateTime] = mapped_column(DateTime,server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     started_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
 
@@ -62,9 +62,9 @@ class Experiment(Base):
     remote_job_id: Mapped[Optional[str]] = mapped_column(String(100))
     compute_config: Mapped[Optional[dict]] = mapped_column(JSONB)
 
-    final_train_loss: Mapped[Optional[float]]
-    final_val_loss: Mapped[Optional[float]]
-    test_accuracy: Mapped[Optional[float]]
+    final_train_loss: Mapped[Optional[float]] = mapped_column(Float)
+    final_val_loss: Mapped[Optional[float]] = mapped_column(Float)
+    test_accuracy: Mapped[Optional[float]] = mapped_column(Float)
 
     log_file_path: Mapped[Optional[str]] = mapped_column(Text)
     checkpoint_path: Mapped[Optional[str]] = mapped_column(Text)
@@ -106,12 +106,12 @@ class Hyperparameter(Base):
 class Metric(Base):
     """
     Tracks metrics during training and evaluation.
-    
+
     step values:
     - NULL: Inference-only (no training, just evaluation)
     - 0: Pre-training baseline
     - >0: Training step or post-training eval
-    
+
     phase values:
     - train: Logged during training
     - eval: Evaluation metrics
@@ -132,10 +132,9 @@ class Metric(Base):
     )
     metric_name: Mapped[str] = mapped_column(String(100))
     metric_value: Mapped[float]
-    timestamp: Mapped[DateTime] = mapped_column(DateTime,server_default=func.now())
+    timestamp: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     experiment: Mapped["Experiment"] = relationship(back_populates="metrics")
 
     def __repr__(self) -> str:
         return f"<Metric {self.metric_name} step={self.step} value={self.metric_value}>"
- 

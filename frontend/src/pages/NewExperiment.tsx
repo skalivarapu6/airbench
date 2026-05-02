@@ -26,8 +26,8 @@ const NewExperiment = () => {
       try {
         const data = await getDatasets();
         setDatasets(data);
-      } catch (err) {
-        console.error('Failed to load datasets:', err);
+      } catch {
+        // Datasets will just be empty
       }
     };
     fetchDatasets();
@@ -39,12 +39,10 @@ const NewExperiment = () => {
     setError(null);
 
     try {
-      // Validate
       if (!formData.name || !formData.base_model || !formData.dataset_id) {
         throw new Error('Please fill in all required fields');
       }
 
-      // Convert hyperparameters array to object
       const hyperparametersObj = hyperparameters.reduce((acc, hp) => {
         if (hp.name && hp.value) {
           acc[hp.name] = hp.value;
@@ -60,8 +58,10 @@ const NewExperiment = () => {
       });
 
       navigate(`/experiments/${newExperiment.id}`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to create experiment');
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Failed to create experiment';
+      setError(message);
     } finally {
       setLoading(false);
     }

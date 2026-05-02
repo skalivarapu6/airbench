@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getExperiments, deleteExperiment, launchExperiment } from '../api';
 import type { Experiment } from '../types';
+import { getStatusColor } from '../utils';
 import './ExperimentsList.css';
 
 const ExperimentsList = () => {
@@ -14,9 +15,8 @@ const ExperimentsList = () => {
       const data = await getExperiments();
       setExperiments(data);
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Failed to load experiments');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -24,7 +24,6 @@ const ExperimentsList = () => {
 
   useEffect(() => {
     fetchExperiments();
-    // Poll for updates every 5 seconds
     const interval = setInterval(fetchExperiments, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -37,9 +36,8 @@ const ExperimentsList = () => {
     try {
       await deleteExperiment(id);
       setExperiments(experiments.filter(exp => exp.id !== id));
-    } catch (err) {
+    } catch {
       alert('Failed to delete experiment');
-      console.error(err);
     }
   };
 
@@ -47,21 +45,9 @@ const ExperimentsList = () => {
     try {
       await launchExperiment(id);
       await fetchExperiments();
-    } catch (err) {
+    } catch {
       alert('Failed to launch experiment');
-      console.error(err);
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      queued: '#6c7086',
-      running: '#f9e2af',
-      completed: '#a6e3a1',
-      failed: '#f38ba8',
-      cancelled: '#89dceb',
-    };
-    return colors[status] || '#cdd6f4';
   };
 
   if (loading) {

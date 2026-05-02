@@ -1,9 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import { getExperiment, getMetrics, createWebSocketConnection, cancelExperiment, launchExperiment } from '../api';
 import type { ExperimentDetail as ExperimentDetailType, Metric, WebSocketMessage } from '../types';
+import { getStatusColor } from '../utils';
 import './ExperimentDetail.css';
+
+const WS_RECONNECT_DELAY_MS = 3000;
 
 const ExperimentDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,59 +17,72 @@ const ExperimentDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const logsEndRef = useRef<HTMLDivElement>(null);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!id) return;
+  const fetchData = useCallback(async () => {
+    if (!id) return;
 
-      try {
-        const [expData, metricsData] = await Promise.all([
-          getExperiment(parseInt(id)),
-          getMetrics(parseInt(id)).catch(() => [])
-        ]);
+    try {
+      const [expData, metricsData] = await Promise.all([
+        getExperiment(parseInt(id)),
+        getMetrics(parseInt(id)).catch(() => [])
+      ]);
 
-        setExperiment(expData);
-        setMetrics(metricsData);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load experiment');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-
-    // Set up WebSocket connection
-    if (id) {
-      const ws = createWebSocketConnection(parseInt(id));
-      wsRef.current = ws;
-
-      ws.onmessage = (event) => {
-        const message: WebSocketMessage = JSON.parse(event.data);
-
-        if (message.type === 'status_update' && experiment) {
-          setExperiment({ ...experiment, status: message.status || experiment.status });
-        } else if (message.type === 'logs') {
-          setLogs((prev) => prev + (message.logs || ''));
-        } else if (message.type === 'metrics') {
-          fetchData(); // Refresh data when new metrics arrive
-        }
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-
-      return () => {
-        ws.close();
-      };
+      setExperiment(expData);
+      setMetrics(metricsData);
+      setError(null);
+    } catch {
+      setError('Failed to load experiment');
+    } finally {
+      setLoading(false);
     }
   }, [id]);
 
+  const connectWebSocket = useCallback(() => {
+    if (!id) return;
+
+    const ws = createWebSocketConnection(parseInt(id));
+    wsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      const message: WebSocketMessage = JSON.parse(event.data);
+
+      if (message.type === 'status_update') {
+        setExperiment(prev =>
+          prev ? { ...prev, status: message.status || prev.status } : prev
+        );
+      } else if (message.type === 'logs') {
+        setLogs(prev => prev + (message.logs || ''));
+      } else if (message.type === 'metrics') {
+        fetchData();
+      }
+    };
+
+    ws.onerror = () => {
+      // Will trigger onclose for reconnection
+    };
+
+    ws.onclose = () => {
+      wsRef.current = null;
+      reconnectTimer.current = setTimeout(connectWebSocket, WS_RECONNECT_DELAY_MS);
+    };
+  }, [id, fetchData]);
+
   useEffect(() => {
-    // Auto-scroll logs to bottom
+    fetchData();
+    connectWebSocket();
+
+    return () => {
+      if (reconnectTimer.current) {
+        clearTimeout(reconnectTimer.current);
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [fetchData, connectWebSocket]);
+
+  useEffect(() => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
@@ -77,9 +93,8 @@ const ExperimentDetail = () => {
 
     try {
       await cancelExperiment(parseInt(id));
-    } catch (err) {
+    } catch {
       alert('Failed to cancel experiment');
-      console.error(err);
     }
   };
 
@@ -90,21 +105,9 @@ const ExperimentDetail = () => {
       await launchExperiment(parseInt(id));
       const expData = await getExperiment(parseInt(id));
       setExperiment(expData);
-    } catch (err) {
+    } catch {
       alert('Failed to launch experiment');
-      console.error(err);
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      queued: '#6c7086',
-      running: '#f9e2af',
-      completed: '#a6e3a1',
-      failed: '#f38ba8',
-      cancelled: '#89dceb',
-    };
-    return colors[status] || '#cdd6f4';
   };
 
   const renderMetricsChart = () => {
@@ -112,7 +115,6 @@ const ExperimentDetail = () => {
       return <p className="no-data">No metrics data yet</p>;
     }
 
-    // Group metrics by metric name
     const metricsByName: Record<string, Metric[]> = {};
     metrics.forEach((m) => {
       if (!metricsByName[m.metric_name]) {
@@ -228,11 +230,11 @@ const ExperimentDetail = () => {
         <div className="detail-section">
           <h2>Hyperparameters</h2>
           <div className="hyperparameters-list">
-            {experiment.hyperparameters.length > 0 ? (
-              experiment.hyperparameters.map((hp, idx) => (
-                <div key={idx} className="hyperparameter-item">
-                  <span className="param-name">{hp.param_name}:</span>
-                  <span className="param-value">{hp.param_value}</span>
+            {Object.keys(experiment.hyperparameters).length > 0 ? (
+              Object.entries(experiment.hyperparameters).map(([name, value]) => (
+                <div key={name} className="hyperparameter-item">
+                  <span className="param-name">{name}:</span>
+                  <span className="param-value">{value}</span>
                 </div>
               ))
             ) : (

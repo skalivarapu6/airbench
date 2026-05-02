@@ -33,11 +33,11 @@ export const getExperiment = async (id: number): Promise<ExperimentDetail> => {
 };
 
 export const createExperiment = async (data: CreateExperiment): Promise<Experiment> => {
-  const response = await api.post('/new_experiment', data);
+  const response = await api.post('/experiments', data);
   return response.data;
 };
 
-export const updateExperiment = async (id: number, updates: Record<string, any>): Promise<void> => {
+export const updateExperiment = async (id: number, updates: Record<string, unknown>): Promise<void> => {
   await api.put(`/experiments/${id}`, updates);
 };
 
@@ -47,7 +47,7 @@ export const deleteExperiment = async (id: number): Promise<void> => {
 
 export const launchExperiment = async (
   id: number,
-  providerConfig?: Record<string, any>
+  providerConfig?: Record<string, unknown>
 ): Promise<LaunchResponse> => {
   const response = await api.post(`/experiments/${id}/launch`, providerConfig || {});
   return response.data;
@@ -64,7 +64,7 @@ export const getDatasets = async (): Promise<Dataset[]> => {
 };
 
 export const createDataset = async (data: CreateDataset): Promise<Dataset> => {
-  const response = await api.post('/new_dataset', data);
+  const response = await api.post('/datasets', data);
   return response.data;
 };
 
